@@ -4,5 +4,5 @@
   "type": "module",
   "author": "Polina",
   "license": "MIT",
-  "main": "src/"
+  "main": "src/iterator.js"
 }
