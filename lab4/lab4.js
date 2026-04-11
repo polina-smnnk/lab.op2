@@ -21,8 +21,7 @@ class BiPriorityQueue {
     const idx = this._selectIndex(type);
     if (idx === -1) return null;
 
-    const [removed] = this.data.splice(idx, 1);
-    return removed.value;
+    return this.data.splice(idx, 1)[0].value;
   }
 
   _selectIndex(type) {
@@ -31,28 +30,42 @@ class BiPriorityQueue {
     let resultIndex = 0;
 
     for (let i = 1; i < this.data.length; i++) {
-      const a = this.data[i];
-      const b = this.data[resultIndex];
+      const current = this.data[i];
+      const best = this.data[resultIndex];
 
-      if (type === "highest") {
-        if (
-          a.priority > b.priority ||
-          (a.priority === b.priority && a.id < b.id)
-        ) {
-          resultIndex = i;
-        }
-      } else if (type === "lowest") {
-        if (
-          a.priority < b.priority ||
-          (a.priority === b.priority && a.id < b.id)
-        ) {
-          resultIndex = i;
-        }
-      } else {
-        throw new Error('Use "highest" or "lowest"');
+      if (this._isBetter(current, best, type)) {
+        resultIndex = i;
       }
     }
 
     return resultIndex;
+  }
+
+  _isBetter(a, b, type) {
+    if (type === "highest") {
+      return (
+        a.priority > b.priority ||
+        (a.priority === b.priority && a.id < b.id)
+      );
+    }
+
+    if (type === "lowest") {
+      return (
+        a.priority < b.priority ||
+        (a.priority === b.priority && a.id < b.id)
+      );
+    }
+
+    if (type === "oldest") {
+      return a.id < b.id;
+    }
+
+    if (type === "newest") {
+      return a.id > b.id;
+    }
+
+    throw new Error(
+      'Invalid type. Use "highest", "lowest", "oldest", or "newest".'
+    );
   }
 }
