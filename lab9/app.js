@@ -1,39 +1,40 @@
 import { log } from './decorator.js'
 import { logger } from './logger.js'
 
-logger.setTargets(['console', 'file'])
+logger.setTargets(['console', 'file', 'service'])
 
-const sum = log('INFO')(function add(a, b) {
-    return a + b
+logger.setFormatter((data) => {
+    return `${data.level} -> ${data.name} -> ${data.execution}ms`
 })
 
-const divide = log('ERROR')(function divideNumbers(a, b) {
-    if (b === 0) {
-        throw new Error('Division by zero')
-    }
-
-    return a / b
+const multiply = log('INFO')(function multiplyNumbers(a, b) {
+    return a * b
 })
 
-const asyncTask = log('DEBUG')(async function getUser(id) {
+const randomNumbers = log('DEBUG')(async function generateList() {
     return new Promise((resolve) => {
         setTimeout(() => {
-            resolve({
-                id,
-                role: 'student'
-            })
-        }, 500)
+            resolve([
+                Math.floor(Math.random() * 10),
+                Math.floor(Math.random() * 10),
+                Math.floor(Math.random() * 10)
+            ])
+        }, 300)
     })
 })
 
-sum(4, 8).then((res) => {
+const brokenFunction = log('ERROR')(function crash() {
+    throw new Error('System failure')
+})
+
+multiply(5, 9).then((res) => {
     console.log(res)
 })
 
-asyncTask(12).then((data) => {
-    console.log(data)
+randomNumbers().then((res) => {
+    console.log(res)
 })
 
-divide(10, 0).catch(() => {
-    console.log('error handled')
+brokenFunction().catch(() => {
+    console.log('program continues')
 })

@@ -4,6 +4,7 @@ class LoggerSystem {
     constructor() {
         this.targets = ['console']
         this.formatter = this.defaultFormatter
+        this.onlyErrors = false
     }
 
     setTargets(list) {
@@ -14,11 +15,26 @@ class LoggerSystem {
         this.formatter = fn
     }
 
+    enableErrorMode() {
+        this.onlyErrors = true
+    }
+
     defaultFormatter(data) {
-        return `[${data.time}] ${data.level} ${data.name} | args: ${JSON.stringify(data.args)} | result: ${JSON.stringify(data.result)}`
+        return JSON.stringify({
+            time: data.time,
+            level: data.level,
+            functionName: data.name,
+            arguments: data.args,
+            result: data.result,
+            executionTime: data.execution + 'ms'
+        })
     }
 
     save(data) {
+        if (this.onlyErrors && data.level !== 'ERROR') {
+            return
+        }
+
         const text = this.formatter(data)
 
         if (this.targets.includes('console')) {
@@ -27,6 +43,10 @@ class LoggerSystem {
 
         if (this.targets.includes('file')) {
             fs.appendFileSync('logs.txt', text + '\n')
+        }
+
+        if (this.targets.includes('service')) {
+            fs.appendFileSync('service.txt', text + '\n')
         }
     }
 }
